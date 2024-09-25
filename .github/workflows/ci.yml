@@ -2,7 +2,7 @@ name: 'Continuous Integration'
 
 env:
   SERVICE_NAME: latam-challenge
-  project_id: latam-challenge-436723
+  PROJECT_ID: latam-challenge-436723
 
 on:
   push:
@@ -40,4 +40,5 @@ jobs:
             --source . \
             --platform managed \
             --region us-central1 \
-            --allow-unauthenticated
+            --allow-unauthenticated \
+            --service-account= '${{ secrets.SERVICE_ACCOUNT }}'
