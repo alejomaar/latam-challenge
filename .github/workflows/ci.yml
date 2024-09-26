@@ -16,5 +16,5 @@ jobs:
       - name: Set up python packages
         run: make install
 
-      - name: Set up python packages
-        run: make model-test
+      - name: Evaluate API test
+        run: make api-test
