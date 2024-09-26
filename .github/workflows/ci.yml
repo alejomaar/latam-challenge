@@ -41,4 +41,4 @@ jobs:
             --platform managed \
             --region us-central1 \
             --allow-unauthenticated \
-            --service-account= '${{ secrets.SERVICE_ACCOUNT }}'
+            --service-account ${{ secrets.SERVICE_ACCOUNT }}
