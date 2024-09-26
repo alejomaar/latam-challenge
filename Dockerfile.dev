@@ -1,0 +1,22 @@
+# Use Python 3.9 with Debian Bullseye
+FROM python:3.9.20-bullseye
+
+# Set working directory to /app
+WORKDIR /app
+
+# Copy dependency files and Makefile
+COPY ./requirements.txt ./requirements-test.txt ./requirements-dev.txt ./Makefile ./
+
+#  install dependencies
+RUN make install
+
+# Copy the source code
+COPY ./data ./data
+COPY ./challenge ./challenge
+COPY ./tests ./tests
+
+# Expose port 8080
+EXPOSE 8080
+
+# Start the app using uvicorn in the virtual environment
+CMD ["uvicorn", "challenge.api:app", "--host", "0.0.0.0", "--port", "8080", "--proxy-headers"]

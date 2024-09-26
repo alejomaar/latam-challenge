@@ -1,0 +1,20 @@
+name: 'Continuous Integration'
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  code-quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up python packages
+        run: make install
+
+      - name: Evaluate API test
+        run: make api-test
