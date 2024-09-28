@@ -1,5 +1,8 @@
 FROM python:3.9.20-bullseye
 
+# Set working directory to /app
+WORKDIR /app
+
 COPY ./requirements.txt ./
 
 COPY ./challenge ./challenge
