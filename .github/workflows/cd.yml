@@ -43,4 +43,5 @@ jobs:
             --max-instances 30  \
             --min-instances 1 \
             --cpu-boost \
-            --execution-environment gen2
+            --execution-environment gen2 \
+            --allow-unauthenticated
