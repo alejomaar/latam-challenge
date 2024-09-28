@@ -1,19 +1,28 @@
+from enum import Enum
 from typing import List, Literal
 
 import fastapi
-from pydantic import BaseModel, conint
+import pandas as pd
+from pydantic import BaseModel, Field, conint
+
+from challenge.model import DelayModel
 
 app = fastapi.FastAPI()
+delay_model = DelayModel()
 
 
-class FlightPrediction(BaseModel):
-    OPERA: str  
-    TIPOVUELO: Literal["N", "I"] 
-    MES: conint(ge=1, le=12)  
+class Flight(BaseModel):
+    OPERA: str = Field(..., description="Name of the airline that operates.")
+    TIPOVUELO: Literal["N", "I"] = Field(
+        ..., description="Type of flight, I = International, N = National."
+    )
+    MES: conint(ge=1, le=12) = Field(
+        ..., description="Number of the month of operation of the flight."
+    )
 
 
-class FlightPredictionRequest(BaseModel):
-    flights: List[FlightPrediction]  
+class FlightRequest(BaseModel):
+    flights: List[Flight]
 
 
 @app.get("/health", status_code=200)
@@ -22,5 +31,9 @@ async def get_health() -> dict:
 
 
 @app.post("/predict", status_code=200)
-async def post_predict(request: FlightPredictionRequest) -> dict:
-    return {"predict": [0]}
+async def post_predict(flight_request: FlightRequest) -> dict:
+
+    data = pd.DataFrame(flight_request.dict()["flights"])
+    features = delay_model.preprocess(data)
+    prediction = delay_model.predict(features)
+    return {"predict": prediction}
