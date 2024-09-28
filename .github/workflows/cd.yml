@@ -38,4 +38,9 @@ jobs:
             --platform managed \
             --region us-central1 \
             --allow-unauthenticated \
-            --service-account ${{ secrets.SERVICE_ACCOUNT }}
+            --service-account ${{ secrets.SERVICE_ACCOUNT }} \
+            --concurrency 80  \
+            --max-instances 30  \
+            --min-instances 1 \
+            --cpu-boost \
+            --execution-environment gen2
