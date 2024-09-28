@@ -1,19 +1,20 @@
+import logging
+import os
+import pickle
 from datetime import datetime
+from pathlib import Path
 from typing import List, Tuple, Union
 
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
-import pickle
-
-import os
-import logging
+from sklearn.preprocessing import OneHotEncoder
 
 # Configure the logger
 logging.basicConfig(
-    level=logging.DEBUG,  # Capture all logging levels
+    level=logging.DEBUG,
     format="%(asctime)s %(levelname)s %(filename)s:%(lineno)d %(funcName)s: %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",  # Optional: Set a custom date format
+    datefmt="%Y-%m-%d %H:%M:%S",
 )
 
 # Example usage
@@ -32,16 +33,22 @@ FEATURES_COLS = [
     "OPERA_Copa Air",
 ]
 THRESHOLD_IN_MINUTES = 15
-
+CORE_COLUMNS = ["OPERA", "TIPOVUELO", "MES"]
 
 MODEL = None  # Create model as global variable for enable caching
-MODEL_PATH = "challenge/model.pkl"
+ENCODER = None  # Create encoder as global variable for enable caching
+CURRENT_FOLDER = Path(__file__).parent
 
-if os.path.exists(MODEL_PATH):
+MODEL_PATH = CURRENT_FOLDER / "model.pkl"
+ENCODER_PATH = CURRENT_FOLDER / "encoder.pkl"
+
+if os.path.exists(MODEL_PATH) and os.path.exists(ENCODER_PATH):
     with open(MODEL_PATH, "rb") as file:
         MODEL = pickle.load(file)
+    with open(ENCODER_PATH, "rb") as file:
+        ENCODER = pickle.load(file)
 else:
-    logger.warning("No model was found")
+    logger.warning("No model or encoder was found")
 
 
 def get_min_diff(data):
@@ -56,6 +63,7 @@ class DelayModel:
     def __init__(self):
 
         self._model = MODEL  # Model should be saved in this attribute.
+        self._encoder = ENCODER
         self._target_column = None
 
     def preprocess(
@@ -74,26 +82,32 @@ class DelayModel:
             pd.DataFrame: features.
         """
 
-        features = pd.concat(
-            [
-                pd.get_dummies(data["OPERA"], prefix="OPERA"),
-                pd.get_dummies(data["TIPOVUELO"], prefix="TIPOVUELO"),
-                pd.get_dummies(data["MES"], prefix="MES"),
-            ],
-            axis=1,
-        )
-        features = features[FEATURES_COLS]
         if target_column:
+            # Setup target column
             data["min_diff"] = data.apply(get_min_diff, axis=1)
             data[target_column] = np.where(
                 data["min_diff"] > THRESHOLD_IN_MINUTES, 1, 0
             )
             self._target_column = target_column
+            # Setup features
+            self._encoder = OneHotEncoder(sparse_output=False)
+            categorical_df = data[CORE_COLUMNS]
+            encoded_features = self._encoder.fit_transform(categorical_df)
+            encoded_df = pd.DataFrame(
+                encoded_features,
+                columns=self._encoder.get_feature_names_out(CORE_COLUMNS),
+            )
 
-            return features[FEATURES_COLS], data[[target_column]].astype(int)
+            return encoded_df[FEATURES_COLS], data[[target_column]].astype(int)
 
         else:
-            return features
+            categorical_df = data[CORE_COLUMNS]
+            encoded_features = self._encoder.transform(categorical_df)
+            encoded_df = pd.DataFrame(
+                encoded_features,
+                columns=self._encoder.get_feature_names_out(CORE_COLUMNS),
+            )
+            return encoded_df[FEATURES_COLS]
 
     def fit(self, features: pd.DataFrame, target: pd.DataFrame) -> None:
         """
@@ -122,6 +136,8 @@ class DelayModel:
         """
         return self._model.predict(features).tolist()
 
-    def save(self, filename="model.pkl"):
-        with open(filename, "wb") as f:
+    def save(self):
+        with open(MODEL_PATH, "wb") as f:
             pickle.dump(self._model, f)
+        with open(ENCODER_PATH, "wb") as f:
+            pickle.dump(self._encoder, f)
