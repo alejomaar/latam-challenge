@@ -7,7 +7,9 @@ WORKDIR /app
 COPY ./requirements.txt ./requirements-test.txt ./requirements-dev.txt ./Makefile ./
 
 #  install dependencies
-RUN make install
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements-test.txt
+
 
 # Copy the source code
 COPY ./data ./data

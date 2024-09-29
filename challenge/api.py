@@ -18,7 +18,7 @@ async def get_health() -> dict:
     return {"status": "OK"}
 
 
-@app.post("/predict", status_code=200, response_model=list[schema.FlightResponse])
+@app.post("/predict", status_code=200, response_model=schema.FlightResponse)
 async def post_predict(flight_request: schema.FlightRequest) -> dict:
     """Predict delays based on flight data.
 
