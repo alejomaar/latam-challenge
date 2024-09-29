@@ -51,15 +51,13 @@ This document details the solution for deploying a high-performance machine lear
 
 
 <p align="center">
-    <img src="https://github.com/user-attachments/assets/2f12a642-1c8a-4906-b001-62e55b375ecb
-    " alt="dashboard"/>
+    <img src="https://github.com/user-attachments/assets/2f12a642-1c8a-4906-b001-62e55b375ecb" alt="dashboard"/>
 </p>
 
 ## Part II: API Development
 
 <p align="center">
-    <img src="https://github.com/user-attachments/assets/b07da720-803e-4207-8ce9-1753ea66629d    
-    " alt="dashboard"/>
+    <img src="https://github.com/user-attachments/assets/b07da720-803e-4207-8ce9-1753ea66629d" alt="dashboard"/>
 </p>
 
 
@@ -118,8 +116,7 @@ gcloud run deploy $SERVICE_NAME \
 Load testing with Locust demonstrates the API's ability to maintain performance under high load. Based on `make stress-test` the results shows that *regarless the increasing number of users, The API keeps its high performance with median response times below 100ms!*
 
 <p align="center">
-    <img src="https://github.com/user-attachments/assets/f2dcc54f-5a8e-481e-86e7-c7e81024ef71
-    " alt="dashboard"/>
+    <img src="https://github.com/user-attachments/assets/f2dcc54f-5a8e-481e-86e7-c7e81024ef71" alt="dashboard"/>
 </p>
 
 ## Part IV : CI/CD
