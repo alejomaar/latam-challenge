@@ -59,7 +59,7 @@ Here's a small documentation snippet for your API endpoints:
 
 #### Health Check
 - **Method:** `GET`
-- **Endpoint:** `https://latam-challenge-693731259774.us-central1.run.app/`
+- **Endpoint:** `https://latam-challenge-693731259774.us-central1.run.app/health`
 - **Description:** Checks the health status of the API service.
 
 #### Prediction
