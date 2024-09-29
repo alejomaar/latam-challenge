@@ -41,7 +41,6 @@ This document details the solution for deploying a high-performance machine lear
 * **CI/CD:**
     * Docker
     * GitHub Actions
-## Part I
 
 ## Part I: Model Development
 
@@ -56,7 +55,7 @@ This document details the solution for deploying a high-performance machine lear
     " alt="dashboard"/>
 </p>
 
-## Part II
+## Part II: API Development
 
 <p align="center">
     <img src="https://github.com/user-attachments/assets/b07da720-803e-4207-8ce9-1753ea66629d    
@@ -81,7 +80,8 @@ docker run -d challenge:v1 -p 8080:8080
 This image is used for Continuous Delivery.
 
 
-## Part III
+## Part III : GCP Infrastructure & Locust
+
 
 * **GCP Cloud Run:** Cloud Run was chosen for its serverless nature, container support, and automatic scaling capabilities.  It avoids the overhead of managing a Kubernetes cluster.
 
@@ -122,7 +122,7 @@ Load testing with Locust demonstrates the API's ability to maintain performance 
     " alt="dashboard"/>
 </p>
 
-## Part IV
+## Part IV : CI/CD
 
 
 
