@@ -7,7 +7,7 @@ import challenge.schema as schema
 from challenge.model import DelayModel
 
 app = fastapi.FastAPI()
-delay_model = DelayModel()
+delay_model = DelayModel() # Global to enable caching
 
 
 @app.exception_handler(RequestValidationError)
