@@ -3,7 +3,7 @@ import os
 import pickle
 from datetime import datetime
 from pathlib import Path
-from typing import List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -35,36 +35,46 @@ FEATURES_COLS = [
 THRESHOLD_IN_MINUTES = 15
 CORE_COLUMNS = ["OPERA", "TIPOVUELO", "MES"]
 
-MODEL = None  # Create model as global variable for enable caching
-ENCODER = None  # Create encoder as global variable for enable caching
-CURRENT_FOLDER = Path(__file__).parent
-
-MODEL_PATH = CURRENT_FOLDER / "model.pkl"
-ENCODER_PATH = CURRENT_FOLDER / "encoder.pkl"
-
-if os.path.exists(MODEL_PATH) and os.path.exists(ENCODER_PATH):
-    with open(MODEL_PATH, "rb") as file:
-        MODEL = pickle.load(file)
-    with open(ENCODER_PATH, "rb") as file:
-        ENCODER = pickle.load(file)
-else:
-    logger.warning("No model or encoder was found")
-
-
-def get_min_diff(data):
-    fecha_o = datetime.strptime(data["Fecha-O"], "%Y-%m-%d %H:%M:%S")
-    fecha_i = datetime.strptime(data["Fecha-I"], "%Y-%m-%d %H:%M:%S")
-    min_diff = ((fecha_o - fecha_i).total_seconds()) / 60
-    return min_diff
+folder = Path(__file__).parent
+MODEL_PATH = folder / "model" / "model.pkl"
+ENCODER_PATH = folder / "model" / "encoder.pkl"
 
 
 class DelayModel:
+    """
+    A model for predicting the probability of flight delay at SCL airport.
+
+    Attributes:
+        _model: The machine learning model used for delay prediction.
+        _encoder: The encoder for preprocessing the input data.
+        _target_column (str): The name of the target column (e.g., delay) used in prediction.
+    """
 
     def __init__(self):
 
-        self._model = MODEL  # Model should be saved in this attribute.
-        self._encoder = ENCODER
+        self._model = self.load_pickle(MODEL_PATH)
+        self._encoder = self.load_pickle(ENCODER_PATH)
         self._target_column = None
+
+    @staticmethod
+    def load_pickle(path: str) -> Optional[object]:
+        """Loads a pickle file if it exists, otherwise return None"""
+        if os.path.exists(path):
+            with open(path, "rb") as file:
+                return pickle.load(file)
+        logger.warning("%s was no found", path)
+        return None
+
+    @staticmethod
+    def get_min_diff(data: pd.Series) -> float:
+        """
+        Calculates the difference in minutes between the scheduled flight
+        date (`Fecha-I`) and the actual flight operation date (`Fecha-O`).
+        """
+        fecha_o = datetime.strptime(data["Fecha-O"], "%Y-%m-%d %H:%M:%S")
+        fecha_i = datetime.strptime(data["Fecha-I"], "%Y-%m-%d %H:%M:%S")
+        min_diff = ((fecha_o - fecha_i).total_seconds()) / 60
+        return min_diff
 
     def preprocess(
         self, data: pd.DataFrame, target_column: str = None
@@ -84,7 +94,7 @@ class DelayModel:
 
         if target_column:
             # Setup target column
-            data["min_diff"] = data.apply(get_min_diff, axis=1)
+            data["min_diff"] = data.apply(DelayModel.get_min_diff, axis=1)
             data[target_column] = np.where(
                 data["min_diff"] > THRESHOLD_IN_MINUTES, 1, 0
             )
@@ -137,6 +147,9 @@ class DelayModel:
         return self._model.predict(features).tolist()
 
     def save(self):
+        """
+        Serializes and saves the model and encoder to predefined file paths.
+        """
         with open(MODEL_PATH, "wb") as f:
             pickle.dump(self._model, f)
         with open(ENCODER_PATH, "wb") as f:
