@@ -48,6 +48,26 @@ The architecture of the solution is designed to manage high peak of request, ext
 * **CI/CD:**
     * Docker
     * GitHub Actions
+ 
+#### API Endpoints
+
+Here's a small documentation snippet for your API endpoints:
+
+---
+
+### API Endpoints
+
+#### Health Check
+- **Method:** `GET`
+- **Endpoint:** `https://latam-challenge-693731259774.us-central1.run.app/`
+- **Description:** Checks the health status of the API service.
+
+#### Prediction
+- **Method:** `POST`
+- **Endpoint:** `https://latam-challenge-693731259774.us-central1.run.app/predict`
+- **Description:** Sends data to the API for to obtain predictions.
+
+
 
 ## Part I: Model Development
 
